@@ -3,7 +3,6 @@ from data import SensorData
 import os
 
 import pandas as pd
-import pyarrow as pa
 
 class Client:
     def __init__(self):

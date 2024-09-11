@@ -1,7 +1,6 @@
 # HDFS
 hdfs
 fastavro
-pyarrow
 pandas
 fastparquet
 pynput
