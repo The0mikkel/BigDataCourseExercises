@@ -1,5 +1,35 @@
 # Solution
 
+## Index
+
+- [Solution](#solution)
+  - [Index](#index)
+  - [Exercise 1](#exercise-1)
+  - [Exercise 2](#exercise-2)
+    - [Task 1](#task-1)
+    - [Task 2](#task-2)
+    - [Task 3](#task-3)
+    - [Task 4](#task-4)
+    - [Task 5](#task-5)
+    - [Task 6](#task-6)
+    - [Task 7](#task-7)
+  - [Exercise 3](#exercise-3)
+    - [Task 1](#task-1-1)
+  - [Exercise 4](#exercise-4)
+  - [Exercise 5](#exercise-5)
+    - [Task 2](#task-2-1)
+  - [Exercise 6](#exercise-6)
+  - [Exercise 7](#exercise-7)
+  - [Exercise 8](#exercise-8)
+  - [Exercise 9](#exercise-9)
+    - [Description](#description)
+    - [Solution](#solution-1)
+      - [Task 1](#task-1-2)
+      - [Task 2](#task-2-2)
+      - [Task 3](#task-3-1)
+      - [Task 4](#task-4-1)
+      - [Task 5](#task-5-1)
+
 ## Exercise 1
 
 Run setup specified in [/services/hdfs/README.md](../../services/hdfs/README.md).
