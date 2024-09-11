@@ -37,7 +37,11 @@ def save_data(data):
     path = f"/powergrid/elecricity_lines/wattage_offset/{data.sensor_id}/{data.temporal_aspect}/{date}/{data.correlation_id}.parquet"
     logger.info(f"Saving data: {data} to HDFS ({path})")
     client.append(path, data)
-    sensor_threads[data.sensor_id] = (sensor_threads[data.sensor_id][0], sensor_threads[data.sensor_id][1], data.modality)
+    sensor_threads[data.sensor_id] = {
+        "thread": sensor_threads[data.sensor_id]["thread"],
+        "health": True,
+        "output": data
+    }
         
 def start_sensor(sensorId):
     logger.debug(f"Starting sensor {sensorId}")
@@ -49,14 +53,18 @@ def start_sensor(sensorId):
 
 def check_sensors_health():
     logger.debug("Checking sensors thread health")
-    for sensorId, (thread, health, output) in sensor_threads.items():
-        if not thread.is_alive():
+    for sensorId, data in sensor_threads.items():
+        if not data["thread"].is_alive():
             try:
                 logger.warning(f"Sensor {sensorId} is not alive, starting it again")
-                thread.start()
+                data["thread"].start()
             except:
                 # Modify entry in the list, such that health is false
-                sensor_threads[sensorId] = (thread, False, output)
+                sensor_threads[sensorId] = {
+                    "thread": data["thread"],
+                    "health": False,
+                    "output": data["output"]
+                }
                 
 
 @app.route("/sensors")
@@ -67,11 +75,11 @@ def get_sensors():
         "sensors": []
     }
     
-    for sensorId, (thread, health, output) in sensor_threads.items():
+    for sensorId, data in sensor_threads.items():
         response["sensors"].append({
             "sensor_id": sensorId,
-            "healthy": health,
-            "reading": output
+            "healthy": data["health"],
+            "reading": data["output"]
         })
     
     return jsonify(response)
@@ -87,12 +95,12 @@ def get_health():
     }
     
     health = True
-    for sensorId, (thread, health, current_output) in sensor_threads.items():
+    for sensorId, data in sensor_threads.items():
         response["sensors"].append({
             "sensor_id": sensorId,
-            "healthy": health
+            "healthy": data["health"]
         })
-        if not health:
+        if not data["health"]:
             health = False
         
     # if any sensor is unhealthy, return status code 500
@@ -118,7 +126,11 @@ else:
 for sensorId in sensors:
     thread = Thread(target = start_sensor, args = [sensorId])
     thread.start()
-    sensor_threads[sensorId] = (thread, True, 0)
+    sensor_threads[sensorId] = {
+        "thread": thread,
+        "health": True,
+        "output": None
+    }
     
 logger.info("Sensors started")
 
