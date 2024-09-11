@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: sensor-even
+  labels:
+    lecture: "02"
+    exercise: powergrid-sampler
+    component: sensor
+    course: bigdata
+    app: sensor-even
+    group: even
+spec:
+  # modify replicas according to your case
+  replicas: 3
+  selector:
+    matchLabels:
+      lecture: "02"
+      exercise: powergrid-sampler
+      component: sensor
+      course: bigdata
+      app: sensor-even
+      group: even
+  template:
+    metadata:
+      labels:
+        lecture: "02"
+        exercise: powergrid-sampler
+        component: sensor
+        course: bigdata
+        app: sensor-even
+        group: even
+    spec:
+      containers:
+        - name: sensor-even
+          image: ghcr.io/the0mikkel/bigdatacourseexercises:02-sensor
+          resources:
+            requests:
+              cpu: "20m"
+              memory: "55M"
+            limits:
+              cpu: "100m"
+              memory: "100M"
+          livenessProbe:
+            httpGet:
+              path: /_status/healthz
+              port: 5000
+            initialDelaySeconds: 90
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /_status/healthz
+              port: 5000
+            initialDelaySeconds: 30
+            timeoutSeconds: 10
+          env:
+            - name: SENSORS
+              value: "10,20,30,40,50,60,70,80,90,100"
+          ports:
+            - containerPort: 5000
+              name: http
+      restartPolicy: Always
+      imagePullPolicy: Always

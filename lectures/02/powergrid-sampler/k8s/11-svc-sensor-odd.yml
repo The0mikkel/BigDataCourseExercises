@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Service
+metadata:
+  name: sensor-odd
+  labels:
+    lecture: "02"
+    exercise: powergrid-sampler
+    component: sensor
+    course: bigdata
+    app: sensor-odd
+    group: odd
+spec:
+  selector:
+    lecture: "02"
+    exercise: powergrid-sampler
+    component: sensor
+    course: bigdata
+    app: sensor-odd
+    group: odd
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000

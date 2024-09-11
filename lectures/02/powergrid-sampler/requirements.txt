@@ -1,0 +1,10 @@
+# HDFS
+hdfs
+fastavro
+pyarrow
+pandas
+fastparquet
+pynput
+
+# Webserver
+flask

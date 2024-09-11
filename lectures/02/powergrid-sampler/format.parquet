@@ -1,0 +1,9 @@
+message SensorData {
+   required binary sensor_id (UTF8);
+   required binary correlation_id (UTF8);
+   required int32 schema_version;
+   required double modality;
+   required binary unit (UTF8);
+   required binary temporal_aspect (UTF8);
+   required binary created_at (TIMESTAMP(isAdjustedToUTC=true, unit=MILLIOS));
+}

@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Service
+metadata:
+  name: sensor-even
+  labels:
+    lecture: "02"
+    exercise: powergrid-sampler
+    component: sensor
+    course: bigdata
+    app: sensor-even
+spec:
+  selector:
+    lecture: "02"
+    exercise: powergrid-sampler
+    component: sensor
+    course: bigdata
+    app: sensor-even
+    group: even
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000

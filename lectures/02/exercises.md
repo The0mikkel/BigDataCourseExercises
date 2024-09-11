@@ -34,11 +34,11 @@ Now that we have a HDFS cluster lets now try and use it. HDFS has a CLI tool for
 
 Much like you created an interactive container with Ubuntu [last week](../01/exercises.md#exercise-6---interactive-container ) you now need to create an interactive container using the `apache/hadoop:3` image.
 
-**Task**: Create interactive container with the `apache/hadoop:3` image.
+**Task 1**: Create interactive container with the `apache/hadoop:3` image.
 
 HDFS works much like a normal file system. The commands to interact with HDFS are also similar to the commands you would use on a Unix system (such as Linux and Mac). For example, to list files and folders in a directory you would use the following command `hdfs dfs -ls /`.
 
-**Tasks**:
+**Tasks 2**:
 
 1. Use the command `hdfs dfs -ls /`. What does it tell you?
 2. Compare the output to `ls -laL /`
@@ -47,10 +47,10 @@ Because we have not configured the HDFS CLI tool to use the HDFS cluster it fail
 
 To use the HDFS cluster we need to tell the HDFS CLI to use the HDFS cluster we have made. This is done using the `-fs` option, for example: `hdfs dfs -fs hdfs://namenode:9000 -ls /`. You also need to use the `root` user when interacting with the HDFS cluster. This can be done by setting an environment variable for the current shell session: `export HADOOP_USER_NAME=root`.
 
-**Task**: Try to list the files inside the root directory in the HDFS cluster
+**Task 3**: Try to list the files inside the root directory in the HDFS cluster
 **Validate**: Verfify there are no files in the root directory. The following exercises will be about creating files, reading files, uploading files, and deleting files in HDFS. The HDFS CLI tool is used for this.
 
-**Task**: Create a file inside the interactive container called "test.txt" and add some text to it.
+**Task 4**: Create a file inside the interactive container called "test.txt" and add some text to it.
 
 <details>
   <summary><strong>Hint:</strong> Creating a file</summary>
@@ -60,7 +60,7 @@ To use the HDFS cluster we need to tell the HDFS CLI to use the HDFS cluster we 
 
 To add a file to the HDFS cluster using the HDFS CLI you can use the `-put` command.
 
-**Task**: Upload the file to the HDFS cluster
+**Task 5**: Upload the file to the HDFS cluster
 
 <details>
   <summary><strong>Hint:</strong> Uploading the file</summary>
@@ -70,7 +70,7 @@ To add a file to the HDFS cluster using the HDFS CLI you can use the `-put` comm
 
 Now that you have uploaded a file to HDFS you can try to list the files to verify that it is added. Similarly to Unix systems you can use the `-cat` command to read the content of a given file.
 
-**Task**: Read the contents of the file you just uploaded to HDFS
+**Task 6**: Read the contents of the file you just uploaded to HDFS
 
 <details>
   <summary><strong>Hint:</strong> Reading the file</summary>
@@ -78,7 +78,7 @@ Now that you have uploaded a file to HDFS you can try to list the files to verif
   `hdfs dfs -fs hdfs://namenode:9000 -cat /test.txt`
 </details>
 
-**Task**: Try to delete the file from HDFS
+**Task 7**: Try to delete the file from HDFS
 
 **Hint**: Run the command `hdfs dfs` to get a list of all commands and options.
 
@@ -94,7 +94,7 @@ You are now able to list files and folders, read files, upload files, and delete
 
 For the next exercises you will be working with the Alice in Wonderland book. The book can be read from this URL [https://www.gutenberg.org/files/11/11-0.txt](https://www.gutenberg.org/files/11/11-0.txt) as raw text.
 
-**Task**: Upload Alice in Wonderland to HDFS
+**Task 1**: Upload Alice in Wonderland to HDFS
 
 **Hint**: Download using `wget -O alice-in-wonderland.txt https://www.gutenberg.org/files/11/11-0.txt`
 
@@ -124,14 +124,14 @@ We now want to try to interact with the HDFS cluster using Python. To do this, t
 - [`client.py`](./src/client.py) - This file is used to create a HDFS client
 - [`simple-client.py`](./simple-client.py) - This script contains examples for how to read a file and how to create a file.
 
-**Task**: Familiarize yourself with the provided files, open the files and understand what they do.
+**Task 1**: Familiarize yourself with the provided files, open the files and understand what they do.
 
-**Tasks**:
+**Task 2**:
 1. Create an [interactive container](../01/exercises.md#exercise-6---interactive-container) with the `python:3.11` image and [attach Visual Studio Code to it](#attach-visual-studio-code-to-an-interactive-container-in-kubernetes).
-1. Copy the [`simple-client.py`](./simple-client.py) and [`client.py`](./src/client.py) files to the container.
-1. Install `hdfs` library using `pip install hdfs` in the container.
-1. Verify the `client.py` module uses the correct namenode.
-1. Run the `simple-client.py` script and observe whats happening.
+2. Copy the [`simple-client.py`](./simple-client.py) and [`client.py`](./src/client.py) files to the container.
+3. Install `hdfs` library using `pip install hdfs` in the container.
+4. Verify the `client.py` module uses the correct namenode.
+5. Run the `simple-client.py` script and observe whats happening.
 
 **Notice**: You should see that the script prints the entire Alice in Wonderland text to the console and that it then creates a file called "write.txt" with some text.
 
@@ -141,11 +141,11 @@ We now want to try to interact with the HDFS cluster using Python. To do this, t
 
 Now we know how to put files in HDFS, read files from HDFS and how to interact with HDFS. The next exercise will analyze the data and save the results to a JSON file in HDFS.
 
-**Task**: Open the [`counting-json.py`](./counting-json.py) file and try to understand it.
+**Task 1**: Open the [`counting-json.py`](./counting-json.py) file and try to understand it.
 
 **Notice**: You should see that the script reads the Alice in Wonderland file and counts all words in the file. It then saves the 10 most common words to a file called "word-count.json".
 
-**Tasks**:
+**Tasks 2**:
 
 1. Copy the script to the interactive container.
 1. Install required libraries (if needed).
@@ -158,11 +158,11 @@ Now we know how to put files in HDFS, read files from HDFS and how to interact w
 
 Instead of saving the result as a JSON file, we will now try to save it as an Avro file.
 
-**Task**: Open the [`counting-avro.py`](./counting-avro.py) file and try to understand it.
+**Task 1**: Open the [`counting-avro.py`](./counting-avro.py) file and try to understand it.
 
 You should see that the script reads the Alice in Wonderland file similarly to [exercise 5](#exercise-5---analyzing-file-and-saving-result-in-json-format-using-python). However, saving the file is different.
 
-**Tasks**:
+**Task 2**:
 1. Copy the script to the interactive container.
 1. Install required libraries (if needed).
 1. Run the [`counting-avro.py`](./counting-avro.py) file.
@@ -172,9 +172,9 @@ You should see that the script reads the Alice in Wonderland file similarly to [
 
 We will now try to save a Parquet file to HDFS.
 
-**Tasks**: Open the [`counting-parquet.py`](./counting-parquet.py) file and try to understand it.
+**Task 1**: Open the [`counting-parquet.py`](./counting-parquet.py) file and try to understand it.
 
-**Tasks**:
+**Task 2**:
 
 1. Copy the script to the interactive container.
 1. Install required libraries (if needed).
