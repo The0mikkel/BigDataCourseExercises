@@ -56,7 +56,7 @@ def check_sensors_health():
                 thread.start()
             except:
                 # Modify entry in the list, such that health is false
-                sensor_threads[sensorId] = (thread, False)
+                sensor_threads[sensorId] = (thread, False, output)
                 
 
 @app.route("/sensors")
