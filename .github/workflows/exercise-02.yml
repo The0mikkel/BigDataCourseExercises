@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'lectures/02/powergrid-sampler/**'
+      - 'lectures/02/powergrid-sampler/**/**'
   workflow_dispatch: # Allow manual trigger
   workflow_call: # Allow other workflows to trigger this workflow
 
