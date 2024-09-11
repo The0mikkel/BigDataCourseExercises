@@ -58,5 +58,3 @@ spec:
           ports:
             - containerPort: 5000
               name: http
-      restartPolicy: Always
-      imagePullPolicy: Always
