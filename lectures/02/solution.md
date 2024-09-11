@@ -546,3 +546,6 @@ For production builds, this should be pinned to a specific version, to ensure th
 
 The Dockerfile is build on top of previus experince with Python and Docker, such as the [flask-quiz](https://github.com/The0mikkel/flask-quiz/blob/main/dockerfile) project, which I made for hosting quizes for reading up to exams.  
 The primse, is to install requirements, make a non-root user, copy the files and run the application using gunicorn (due to using flask for the web healthcheck).
+
+Automatic build and push of the image is done using GitHub Actions, which is set up in the [.github/workflows/exercise-02.yml](/.github/workflows/exercise-02.yml) file.  
+This builds upon [the0mikkel/ci](https://github.com/The0mikkel/ci), which is a collection of GitHub Actions for CI/CD.
