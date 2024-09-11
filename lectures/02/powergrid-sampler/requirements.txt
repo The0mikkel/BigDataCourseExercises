@@ -7,4 +7,5 @@ fastparquet
 pynput
 
 # Webserver
-flask
+Flask==3
+Gunicorn==22.0.0
