@@ -18,13 +18,16 @@ RUN pip install --no-cache-dir -r requirements.txt && rm requirements.txt
 
 # Create a non-root user and switch to it
 RUN adduser -D sensor
+
+# Make folder for application data
+RUN mkdir powergrid && chown sensor:sensor powergrid
+
+# Change to the non-root user
 USER sensor
 
 # Copy the rest of the application code to the working directory
 COPY *.py ./
 
-# Make folder for application data
-RUN mkdir powergrid
 
 # Make port 5000 available to the world outside this container
 EXPOSE 5000
