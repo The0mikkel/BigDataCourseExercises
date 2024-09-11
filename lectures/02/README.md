@@ -290,3 +290,7 @@ To clean up the resources created in this lecture, you can follow the steps belo
 You can get a list of the pods and services to verify that they are deleted.
 
 - `kubectl get all`
+
+## Solutions
+
+Solutions to the exercises can be found in the [solutions.md](./solutions.md) file.
