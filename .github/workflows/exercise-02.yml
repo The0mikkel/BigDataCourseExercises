@@ -12,7 +12,7 @@ jobs:
     name: Docker push for exercise 02 - Powergrid Sampler
     uses: the0mikkel/ci/.github/workflows/docker.yml@v1.1.4
     with:
-      dockerfile: 'lectures/02/powergrid-sampler/Dockerfile'
+      dockerfile: 'lectures/02/powergrid-sampler/docker/dockerfile'
       context: 'lectures/02/powergrid-sampler'
       tags: |
           type=raw,value=02-sensor
