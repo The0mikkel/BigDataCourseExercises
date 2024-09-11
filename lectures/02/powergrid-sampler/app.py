@@ -8,9 +8,15 @@ import datetime
 import random
 import os
 import uuid
+import logging
+
+logger = logging.getLogger('gunicorn.error')
 
 # Webserver app
 app = Flask(__name__)
+
+app.logger.handlers = logger.handlers
+app.logger.setLevel(logger.level)
 
 # HDFS client
 client = Client()
@@ -29,24 +35,24 @@ def save_data(data):
     # Convert float to date
     date = datetime.datetime.fromtimestamp(data.created_at).strftime('%Y-%m-%d')
     path = f"/powergrid/elecricity_lines/wattage_offset/{data.sensor_id}/{data.temporal_aspect}/{date}/{data.correlation_id}.parquet"
-    print(f"Saving data: {data} to HDFS ({path})")
+    logger.info(f"Saving data: {data} to HDFS ({path})")
     client.append(path, data)
     sensor_threads[data.sensor_id] = (sensor_threads[data.sensor_id][0], sensor_threads[data.sensor_id][1], data.modality)
         
 def start_sensor(sensorId):
-    print(f"Starting sensor {sensorId}")
-    print(f"Correlation ID: {correlationId}")
-    print(f"Sample rate: {sampleRate}")
+    logger.debug(f"Starting sensor {sensorId}")
+    logger.debug(f"Correlation ID: {correlationId}")
+    logger.debug(f"Sample rate: {sampleRate}")
         
     sensor = Sensor(sensorId, correlationId, sampleRate, save_data)
     sensor.start_listening()
 
 def check_sensors_health():
-    print("Checking sensors thread health")
-    for sensorId, (thread, health) in sensor_threads.items():
+    logger.debug("Checking sensors thread health")
+    for sensorId, (thread, health, output) in sensor_threads.items():
         if not thread.is_alive():
             try:
-                print(f"Sensor {sensorId} is not alive, starting it again")
+                logger.warning(f"Sensor {sensorId} is not alive, starting it again")
                 thread.start()
             except:
                 # Modify entry in the list, such that health is false
@@ -71,7 +77,7 @@ def get_sensors():
     return jsonify(response)
 
 @app.route("/_status/healthz")
-def get_sensors():
+def get_health():
     # Check sensor healths, and create a json response for each sensor, and the correlation id of this instance
     check_sensors_health()
     
@@ -94,19 +100,30 @@ def get_sensors():
     
     return jsonify(response), status_code
 
+@app.route("/")
+def home():
+    return "Sensor API"
+
+logger.info("Starting sensors")
+
+# Prepare sensors
+logger.debug(f"Sensor ID: {sensorId}")
+logger.debug(f"Sensors: {sensors}")
+if sensors != "":
+    sensors = sensors.split(",")
+else:
+    sensors = [sensorId]
+
+# Start sensors
+for sensorId in sensors:
+    thread = Thread(target = start_sensor, args = [sensorId])
+    thread.start()
+    sensor_threads[sensorId] = (thread, True, 0)
+    
+logger.info("Sensors started")
 
 if __name__ == "__main__":
-    # Prepare sensors
-    if sensors != "":
-        sensors = sensors.split(",")
-    else:
-        sensors = [sensorId]
-    
-    # Start sensors
-    for sensorId in sensors:
-        thread = Thread(target = start_sensor, args = [sensorId])
-        thread.start()
-        sensor_threads[sensorId] = (thread, True, 0)
-
     # Start webserver
-    app.run()
+    logger.info("Starting webserver")
+    app.run(host="0.0.0.0", port=5000, debug=True)
+    logger.info("Webserver started")
