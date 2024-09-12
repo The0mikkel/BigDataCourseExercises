@@ -114,6 +114,9 @@ def get_data():
     folder = "/powergrid/elecricity_lines/wattage_offset/"
     df = pd.read_parquet("/" + folder)
     
+    # Sort by created_at, sensor_id and correlation_id
+    df = df.sort_values(by=["created_at", "sensor_id", "correlation_id"])
+    
     # Get the latest 100 datapoints
     df = df.tail(100)
     
