@@ -120,7 +120,12 @@ def get_data():
     # Get the latest 100 datapoints
     df = df.tail(100)
     
-    return jsonify(df.to_dict())
+    # Format as a list of entries
+    data = []
+    for index, row in df.iterrows():
+        data.append(row.to_dict())
+        
+    return jsonify(data)
 
 @app.route("/")
 def home():
