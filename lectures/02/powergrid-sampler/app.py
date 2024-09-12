@@ -41,7 +41,7 @@ def save_data(data):
     sensor_threads[data.sensor_id] = {
         "thread": sensor_threads[data.sensor_id]["thread"],
         "health": True,
-        "output": data
+        "output": str(data)
     }
         
 def start_sensor(sensorId):
@@ -64,7 +64,7 @@ def check_sensors_health():
                 sensor_threads[sensorId] = {
                     "thread": data["thread"],
                     "health": False,
-                    "output": data["output"]
+                    "output": None
                 }
                 
 
@@ -77,11 +77,11 @@ def get_sensors():
     }
     
     for sensorId, data in sensor_threads.items():
-        response["sensors"].append({
-            "sensor_id": sensorId,
-            "healthy": data["health"],
-            "reading": data["output"]
-        })
+        response["sensors"] = {
+            "sensor_id": str(sensorId or "Unknown"),
+            "health": str(data["health"] or False),
+            "output": str(data["output"] or "No data")
+        }
     
     return jsonify(response)
 
@@ -98,8 +98,8 @@ def get_health():
     health = True
     for sensorId, data in sensor_threads.items():
         response["sensors"] = {
-            "sensor_id": sensorId,
-            "healthy": data["health"]
+            "sensor_id": str(sensorId or "Unknown"),
+            "healthy": str(data["health"] or False)
         }
         if not data["health"]:
             health = False
@@ -119,6 +119,9 @@ def get_data():
     
     # Get the latest 100 datapoints
     df = df.tail(100)
+    
+    # Log number of entries
+    logger.info(f"Returning {len(df)} entries")
     
     # Format as a list of entries
     data = []
