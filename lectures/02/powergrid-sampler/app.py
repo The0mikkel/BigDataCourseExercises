@@ -109,7 +109,7 @@ def get_health():
     
     return jsonify(response), status_code
 
-@app.data("/data")
+@app.route("/data")
 def get_data():
     folder = "/powergrid/elecricity_lines/wattage_offset/"
     df = pd.read_parquet("/" + folder)
