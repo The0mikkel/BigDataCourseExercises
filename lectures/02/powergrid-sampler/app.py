@@ -96,10 +96,10 @@ def get_health():
     
     health = True
     for sensorId, data in sensor_threads.items():
-        response["sensors"].append({
+        response["sensors"] = {
             "sensor_id": sensorId,
             "healthy": data["health"]
-        })
+        }
         if not data["health"]:
             health = False
         
