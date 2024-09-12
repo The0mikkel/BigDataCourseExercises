@@ -3,6 +3,7 @@ from client import Client
 from data import SensorData
 from threading import Thread
 from flask import Flask, jsonify
+import pandas as pd
 
 import datetime
 import random
@@ -107,6 +108,16 @@ def get_health():
     status_code = 200 if health else 500
     
     return jsonify(response), status_code
+
+@app.data("/data")
+def get_data():
+    folder = "/powergrid/elecricity_lines/wattage_offset/"
+    df = pd.read_parquet("/" + folder)
+    
+    # Get the latest 100 datapoints
+    df = df.tail(100)
+    
+    return jsonify(df.to_dict())
 
 @app.route("/")
 def home():
