@@ -160,3 +160,12 @@ if __name__ == "__main__":
     logger.info("Starting webserver")
     app.run(host="0.0.0.0", port=5000, debug=True)
     logger.info("Webserver started")
+    
+    # Wait for threads to finish
+    for sensorId, data in sensor_threads.items():
+        data["thread"].join()
+        
+    logger.info("All threads finished - This indicates a problem")
+    
+    # Exit
+    exit(1)
