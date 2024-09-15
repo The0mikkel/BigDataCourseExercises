@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: reader
+  labels:
+    lecture: "02"
+    exercise: powergrid-sampler
+    component: reader
+    course: bigdata
+    app: reader
+    group: reader
+spec:
+  selector:
+    app: reader
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000

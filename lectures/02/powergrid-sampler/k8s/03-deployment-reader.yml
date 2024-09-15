@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sensor-even
+  name: reader
   labels:
     lecture: "02"
     exercise: powergrid-sampler
-    component: sensor
+    component: reader
     course: bigdata
-    app: sensor-even
-    group: even
+    app: reader
+    group: reader
 spec:
   replicas: 1
   selector:
     matchLabels:
       lecture: "02"
       exercise: powergrid-sampler
-      component: sensor
+      component: reader
       course: bigdata
-      app: sensor-even
-      group: even
+      app: reader
+      group: reader
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -30,13 +30,13 @@ spec:
       labels:
         lecture: "02"
         exercise: powergrid-sampler
-        component: sensor
+        component: reader
         course: bigdata
-        app: sensor-even
-        group: even
+        app: reader
+        group: reader
     spec:
       containers:
-        - name: sensor-even
+        - name: reader
           image: ghcr.io/the0mikkel/bigdatacourseexercises:02-sensor
           resources:
             requests:
@@ -58,8 +58,8 @@ spec:
             initialDelaySeconds: 30
             timeoutSeconds: 10
           env:
-            - name: SENSORS
-              value: "10,20,30,40,50,60,70,80,90,100"
+            - name: READER
+              value: "true"
           ports:
             - containerPort: 5000
               name: http

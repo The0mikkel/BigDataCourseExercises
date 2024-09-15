@@ -40,11 +40,11 @@ spec:
           image: ghcr.io/the0mikkel/bigdatacourseexercises:02-sensor
           resources:
             requests:
-              cpu: "20m"
+              cpu: "100m"
               memory: "55M"
             limits:
-              cpu: "100m"
-              memory: "100M"
+              cpu: "1200m"
+              memory: "500M"
           livenessProbe:
             httpGet:
               path: /_status/healthz

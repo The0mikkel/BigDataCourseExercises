@@ -27,6 +27,7 @@ sensorId = os.getenv("SENSOR_ID", random.randint(1, 100))
 sensors = os.getenv("SENSORS", "")
 correlationId = os.getenv("CORRELATION_ID", uuid.uuid4())
 sampleRate = os.getenv("SAMPLE_RATE", 1)
+readerNode = os.getenv("READER", False)
 
 # Main data handling
 sensor_threads = {}
@@ -142,6 +143,10 @@ if sensors != "":
     sensors = sensors.split(",")
 else:
     sensors = [sensorId]
+    
+if readerNode:
+    sensors = []
+    logger.info("Running in reader mode")
 
 # Start sensors
 for sensorId in sensors:
@@ -161,11 +166,12 @@ if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
     logger.info("Webserver started")
     
-    # Wait for threads to finish
-    for sensorId, data in sensor_threads.items():
-        data["thread"].join()
+    if not readerNode:
+        # Wait for threads to finish
+        for sensorId, data in sensor_threads.items():
+            data["thread"].join()
+            
+        logger.info("All threads finished - This indicates a problem")
         
-    logger.info("All threads finished - This indicates a problem")
-    
-    # Exit
-    exit(1)
+        # Exit
+        exit(1)
