@@ -17,23 +17,25 @@ class Client:
             
     def append(self, hdfs_path, data: SensorData):
         try:
-            df = pd.DataFrame.from_dict(data.toObject(), orient="index").transpose()
-            df.to_parquet(hdfs_path, engine='fastparquet', append=True)
+            with self.reader(hdfs_path, encoding="utf-8") as reader:
+                df = pd.DataFrame.from_dict(data.toObject(), orient="index").transpose()
+                df.to_parquet(hdfs_path, engine='fastparquet', append=True)
 
-            self.client.upload(hdfs_path, hdfs_path, overwrite=True)
+                self.client.upload(hdfs_path, hdfs_path, overwrite=True)
         except:
             print("File not found, creating new file.")
             self.write(hdfs_path, data)
 
     def write(self, hdfs_path, data: SensorData, overwrite=True):
         # Check path exists on local client
-        path = hdfs_path.split("/")
-        path.pop()
-        hdfs_dir = "/".join(path)
-        if not os.path.exists(hdfs_dir):
-            os.makedirs(hdfs_dir)
-        
-        df = pd.DataFrame.from_dict(data.toObject(), orient="index").transpose()
-        df.to_parquet(hdfs_path)
+        with self.reader(hdfs_path, encoding="utf-8") as reader:
+            path = hdfs_path.split("/")
+            path.pop()
+            hdfs_dir = "/".join(path)
+            if not os.path.exists(hdfs_dir):
+                os.makedirs(hdfs_dir)
+            
+            df = pd.DataFrame.from_dict(data.toObject(), orient="index").transpose()
+            df.to_parquet(hdfs_path)
 
-        self.client.upload(hdfs_path, hdfs_path, overwrite)
+            self.client.upload(hdfs_path, hdfs_path, overwrite)
