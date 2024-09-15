@@ -2,7 +2,7 @@ import pandas as pd
 
 from hdfs_client import get_hdfs_client
 
-powergridFolder = "/powergrid/elecricity_lines/wattage_offset/"
+powergridFolder = "powergrid/electricity_lines/wattage_offset/"
 
 def read_parquet_folder(folder):
     return pd.read_parquet("/" + folder)

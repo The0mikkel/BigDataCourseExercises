@@ -35,7 +35,7 @@ sensor_threads = {}
 def save_data(data):
     # Convert float to date
     date = datetime.datetime.fromtimestamp(data.created_at).strftime('%Y-%m-%d')
-    path = f"/powergrid/elecricity_lines/wattage_offset/{data.sensor_id}/{data.temporal_aspect}/{date}/{data.correlation_id}.parquet"
+    path = f"/powergrid/electricity_lines/wattage_offset/{data.sensor_id}/{data.temporal_aspect}/{date}/{data.correlation_id}.parquet"
     logger.info(f"Saving data: {data} to HDFS ({path})")
     client.append(path, data)
     sensor_threads[data.sensor_id] = {
@@ -111,7 +111,7 @@ def get_health():
 
 @app.route("/data")
 def get_data():
-    df = pd.read_parquet("/powergrid/elecricity_lines/wattage_offset/")
+    df = pd.read_parquet("/powergrid/electricity_lines/wattage_offset/")
     
     # Sort by created_at, sensor_id and correlation_id
     df = df.sort_values(by=["created_at", "sensor_id", "correlation_id"])
