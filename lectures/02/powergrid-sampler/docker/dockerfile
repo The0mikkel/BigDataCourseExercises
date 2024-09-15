@@ -1,11 +1,11 @@
-FROM python:3-alpine
+FROM python:3
 
 # Set environment variables to prevent Python from writing .pyc files to disk and buffering stdout and stderr
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Install dependencies needed for building Python packages
-RUN apk add --no-cache build-base libffi-dev
+# RUN apk add --no-cache build-base libffi-dev
 
 # Create and set the working directory
 WORKDIR /
