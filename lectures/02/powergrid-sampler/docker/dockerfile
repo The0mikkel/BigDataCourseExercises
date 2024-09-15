@@ -16,14 +16,15 @@ COPY requirements.txt .
 # Install dependencies from requirements.txt and then remove the file
 RUN pip install --no-cache-dir -r requirements.txt && rm requirements.txt
 
-# Add user to run the application
-RUN adduser sensor
+# Create a non-root user and switch to it
+# RUN adduser -D sensor
 
 # Make folder for application data
-RUN mkdir powergrid && chown sensor:sensor powergrid
+# RUN mkdir powergrid && chown sensor:sensor powergrid
+RUN mkdir powergrid
 
 # Change to the non-root user
-USER sensor
+# USER sensor
 
 # Copy the rest of the application code to the working directory
 COPY *.py ./
