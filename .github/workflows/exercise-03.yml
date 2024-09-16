@@ -1,0 +1,21 @@
+name: Docker push for exercise 03 - Powergrid Sampler
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'lectures/03/powergrid-sampler/**'
+      - 'lectures/03/powergrid-sampler/**/**'
+  workflow_dispatch: # Allow manual trigger
+  workflow_call: # Allow other workflows to trigger this workflow
+
+jobs:
+  docker-push:
+    name: Docker push for exercise 03 - Powergrid Sampler
+    uses: the0mikkel/ci/.github/workflows/docker.yml@v1.1.4
+    with:
+      dockerfile: 'lectures/03/powergrid-sampler/docker/dockerfile'
+      context: 'lectures/03/powergrid-sampler'
+      tags: |
+          type=raw,value=03-sensor

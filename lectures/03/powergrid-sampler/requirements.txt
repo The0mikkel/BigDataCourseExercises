@@ -1,0 +1,6 @@
+# HDFS
+kafka-python-ng
+
+# Webserver
+Flask==3
+Gunicorn==22.0.0

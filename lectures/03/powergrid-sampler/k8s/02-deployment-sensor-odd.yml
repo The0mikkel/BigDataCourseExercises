@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sensor-odd
+  labels:
+    lecture: "03"
+    exercise: powergrid-sampler
+    component: sensor
+    course: bigdata
+    app: sensor-odd
+    group: odd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      lecture: "03"
+      exercise: powergrid-sampler
+      component: sensor
+      course: bigdata
+      app: sensor-odd
+      group: odd
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 2
+  template:
+    metadata:
+      labels:
+        lecture: "03"
+        exercise: powergrid-sampler
+        component: sensor
+        course: bigdata
+        app: sensor-odd
+        group: odd
+    spec:
+      containers:
+        - name: sensor-odd
+          image: ghcr.io/the0mikkel/bigdatacourseexercises:03-sensor
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "55M"
+            limits:
+              cpu: "1200m"
+              memory: "500M"
+          livenessProbe:
+            httpGet:
+              path: /_status/healthz
+              port: 5000
+            initialDelaySeconds: 90
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /_status/healthz
+              port: 5000
+            initialDelaySeconds: 30
+            timeoutSeconds: 10
+          env:
+            - name: SENSORS
+              value: "5,15,25,35,45,55,65,75,85,95"
+          ports:
+            - containerPort: 5000
+              name: http
+          imagePullPolicy: Always
