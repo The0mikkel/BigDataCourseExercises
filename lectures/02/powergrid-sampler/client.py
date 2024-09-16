@@ -13,7 +13,7 @@ class Client:
 
     def read(self, hdfs_path):
         with self.client.read(hdfs_path, encoding="utf-8") as reader:
-            return pd.read_parquet(hdfs_path)
+            return pd.read_parquet(reader)
         
     def read_all(self, hdfs_path):
         # Read all in subdirectories
