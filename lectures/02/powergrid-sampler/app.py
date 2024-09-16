@@ -112,8 +112,8 @@ def get_health():
 
 @app.route("/data")
 def get_data():
-    df = client.read("/powergrid/electricity_lines/wattage_offset/")
-    # df = client.read_all("/powergrid/electricity_lines/wattage_offset/")
+    # df = client.read("/powergrid/electricity_lines/wattage_offset/")
+    df = client.read_all("/powergrid/electricity_lines/wattage_offset/")
     
     # Sort by created_at, sensor_id and correlation_id
     df = df.sort_values(by=["created_at", "sensor_id", "correlation_id"])
