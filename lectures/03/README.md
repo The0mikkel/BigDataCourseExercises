@@ -91,7 +91,7 @@ The list below summarises the extra services and briefly demonstrate how to inte
     ```
 
 - Connect (kafka-connect)
-  - `kubectl port-forward svc/kafka-connect  8083`. Make a `curl` cmd in a terminal using the URL [http://127.0.0.1:8083](http://127.0.0.1:8083) and get this output:
+  - `kubectl port-forward svc/kafka-connect 8083`. Make a `curl` cmd in a terminal using the URL [http://127.0.0.1:8083](http://127.0.0.1:8083) and get this output:
     
     ```bash
     curl http://127.0.0.1:8083
@@ -331,6 +331,17 @@ WHERE
 
 **Task**: Validate your newly created streams using ksql commands in its CLI.
 
+<details>
+<summary><strong>Hint</strong>: ksqlDB SELECT STREAM with EMIT CHANGES</summary>
+
+```sql
+SELECT * FROM SENSOR_ID_<sensor_id> EMIT CHANGES;
+```
+
+The `EMIT CHANGES` clause makes the query a continuous query, meaning it will keep listening for new events as they arrive
+
+</details>
+
 ### Exercise 7 - Kafka Connect and HDFS
 
 The objective of this exercise is apply and configure a Kafka Connect module to write the records from the `INGESTION` topic into HDFS as mentioned in [exercise 03](README.md#exercise-2---additional-deployments-of-kafka-connect-kafka-schema-registry-and-kafka-ksql).
@@ -366,13 +377,20 @@ http://127.0.0.1:8083/connectors \
         "format.class": "io.confluent.connect.hdfs.json.JsonFormat",
         "key.converter.schemas.enable":"false",
         "key.converter": "org.apache.kafka.connect.storage.StringConverter",
-        "key.converter.schema.registry.url": "http://kafka-schema-registry.kafka:8081", 
+        "key.converter.schema.registry.url": "http://kafka-schema-registry:8081", 
         "value.converter.schemas.enable":"false",
-        "value.converter.schema.registry.url": "http://kafka-schema-registry.kafka:8081", 
+        "value.converter.schema.registry.url": "http://kafka-schema-registry:8081", 
         "value.converter": "org.apache.kafka.connect.json.JsonConverter"
     }
 }'
 ```
+
+**Note:** If this does not work for you (Windows), then you can use this command (using Command Prompt NOT Powershell):
+
+````bash
+curl -X POST -H "Content-Type: application/json" -d @hints/configuration.json http://127.0.0.1:8083/connectors
+````
+
 </details>
 
 
@@ -396,7 +414,7 @@ The objective of this exercise is to ingest data from a command-line program int
 
 **Task**: Deploy the Flume manifest [flume.yaml](flume.yaml).
 
-**Task**: Open an interactive container with Python 3.12.
+**Task**: Open an interactive container with Python 3.12 or use the interactive pod provided.
 
 <details>
 <summary><strong>Hint</strong>: kubectl run</summary>
