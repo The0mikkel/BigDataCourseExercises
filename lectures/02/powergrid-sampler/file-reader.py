@@ -29,8 +29,20 @@ if __name__ == "__main__":
     print(client.list("/"))
     
     # Get filename from input
-    filename = input("Enter filename to read: ")
-    print("")
+    filename = ""
+    add = input("Enter filename to read: ")
+    
+    # While add is not "n", keep adding files
+    while add != "n":
+        filename = filename + "/" + add
+        # Print list of files in the directory
+        print("Listing contents of the directory:")
+        print(client.list("/" + filename))
+        add = input("Enter filename to read (n to stop): ")
+    
+    # List contents of the file
+    print("Listing contents of the file:")
+    print(client.list("/" + filename))
     
     # Get action from input
     print("Available actions: read, read_parquet, read_parquet_folder, delete")
