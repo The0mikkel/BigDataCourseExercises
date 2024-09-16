@@ -1,6 +1,7 @@
 import json
 
 from kafka import KafkaConsumer, KafkaProducer
+from data import SensorData
 
 # Format <pod name>.<service name>:<port>
 KAFKA_BOOTSTRAP: list[str] = ["kafka:9092"]
@@ -19,7 +20,7 @@ def get_consumer(topic: str, group_id: str = None) -> KafkaConsumer:
 
 
 class Client:
-    def send_msg(self, value, key: str, topic: str) -> None:
+    def send_msg(self, value: SensorData, key: str, topic: str) -> None:
         producer = get_producer()
             
         if not topic:
@@ -28,5 +29,5 @@ class Client:
         producer.send(
             topic=topic,
             key=key.encode(DEFAULT_ENCODING),
-            value=json.dumps(value).encode(DEFAULT_ENCODING),
+            value=json.dumps(value.toObject()).encode(DEFAULT_ENCODING),
         )
