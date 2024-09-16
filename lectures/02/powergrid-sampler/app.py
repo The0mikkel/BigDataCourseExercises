@@ -134,31 +134,32 @@ def get_data():
 def home():
     return "Sensor API"
 
-logger.info("Starting sensors")
 
 # Prepare sensors
-logger.debug(f"Sensor ID: {sensorId}")
-logger.debug(f"Sensors: {sensors}")
-if sensors != "":
-    sensors = sensors.split(",")
-else:
-    sensors = [sensorId]
+if not readerNode:
+    logger.info("Starting sensors")
+    logger.debug(f"Sensor ID: {sensorId}")
+    logger.debug(f"Sensors: {sensors}")
+    if sensors != "":
+        sensors = sensors.split(",")
+    else:
+        sensors = [sensorId]
+        
+    # Start sensors
+    for sensorId in sensors:
+        thread = Thread(target = start_sensor, args = [sensorId])
+        thread.start()
+        sensor_threads[sensorId] = {
+            "thread": thread,
+            "health": True,
+            "output": None
+        }
     
+    logger.info("Sensors started")
+
 if readerNode:
     sensors = []
     logger.info("Running in reader mode")
-
-# Start sensors
-for sensorId in sensors:
-    thread = Thread(target = start_sensor, args = [sensorId])
-    thread.start()
-    sensor_threads[sensorId] = {
-        "thread": thread,
-        "health": True,
-        "output": None
-    }
-    
-logger.info("Sensors started")
 
 if __name__ == "__main__":
     # Start webserver
