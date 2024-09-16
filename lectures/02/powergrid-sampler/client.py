@@ -35,7 +35,7 @@ class Client:
             if "." not in filename:
                 filenames += self.get_files(hdfs_path + "/" + filename + "/")
             else:
-                filenames.append(hdfs_path + "/" + filename)
+                filenames.append(hdfs_path + filename)
                 
         return filenames
 
