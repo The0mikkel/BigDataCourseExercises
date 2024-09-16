@@ -32,7 +32,7 @@ class Client:
             # If file does not have a "." in the name, it is a directory
             filename = file[0]
             if "." not in file:
-                files += self.get_files(hdfs_path + "/" + filename + "/")
+                filenames += self.get_files(hdfs_path + "/" + filename + "/")
             else:
                 filenames.append(hdfs_path + "/" + filename)
                 
