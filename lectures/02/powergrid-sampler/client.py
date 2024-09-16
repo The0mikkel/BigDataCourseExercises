@@ -29,9 +29,9 @@ class Client:
         files = self.client.list(hdfs_path, status=True)
         for file in files:
             # If file does not have a "." in the name, it is a directory
-            if "." not in file:
-                print(file)
-                files += self.get_files(hdfs_path + "/" + file + "/")
+            filename = file[0]
+            if "." not in filename:
+                files += self.get_files(hdfs_path + "/" + filename + "/")
                 
         return files
 
