@@ -14,6 +14,25 @@ class Client:
     def read(self, hdfs_path):
         with self.reader(hdfs_path) as reader:
             return pd.read_parquet(reader)
+        
+    def read_all(self, hdfs_path):
+        # Read all in subdirectories
+        files = self.get_files(hdfs_path)
+        dfs = []
+        for file in files:
+            dfs.append(self.read(hdfs_path + "/" + file))
+            
+        return pd.concat(dfs)
+    
+    def get_files(self, hdfs_path):
+        # Get all files recursively in subdirectories
+        files = self.client.list(hdfs_path, status=False)
+        for file in files:
+            if self.client.isdir(hdfs_path + "/" + file):
+                files += self.get_files(hdfs_path + "/" + file)
+                
+        return files
+
             
     def append(self, hdfs_path, data: SensorData):
         try:
