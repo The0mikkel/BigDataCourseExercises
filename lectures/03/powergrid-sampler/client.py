@@ -19,7 +19,7 @@ def get_consumer(topic: str, group_id: str = None) -> KafkaConsumer:
 
 
 class Client:
-    def send_msg(value, key: str, topic: str) -> None:
+    def send_msg(self, value, key: str, topic: str) -> None:
         producer = get_producer()
             
         if not topic:
