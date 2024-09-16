@@ -26,11 +26,11 @@ class Client:
     
     def get_files(self, hdfs_path):
         # Get all files recursively in subdirectories
-        files = self.client.list(hdfs_path, status=False)
+        files = self.client.list(hdfs_path, status=True)
         for file in files:
             # If file does not have a "." in the name, it is a directory
             if "." not in file:
-                files += self.get_files(hdfs_path + "/" + file)
+                files += self.get_files(hdfs_path + "/" + file + "/")
                 
         return files
 
