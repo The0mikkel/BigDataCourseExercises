@@ -1,6 +1,5 @@
 import json
 
-from data_model import PackageObj, generate_sample
 from kafka import KafkaConsumer, KafkaProducer
 
 # Format <pod name>.<service name>:<port>
