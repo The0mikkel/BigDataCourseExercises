@@ -20,20 +20,23 @@ class Client:
         files = self.get_files(hdfs_path)
         dfs = []
         for file in files:
-            dfs.append(self.read(hdfs_path + "/" + file))
+            dfs.append(self.read(file))
             
         return pd.concat(dfs)
     
     def get_files(self, hdfs_path):
         # Get all files recursively in subdirectories
         files = self.client.list(hdfs_path, status=True)
+        filenames = []
         for file in files:
             # If file does not have a "." in the name, it is a directory
             filename = file[0]
-            if "." not in filename:
+            if "." not in file:
                 files += self.get_files(hdfs_path + "/" + filename + "/")
+            else:
+                filenames.append(hdfs_path + "/" + filename)
                 
-        return files
+        return filenames
 
             
     def append(self, hdfs_path, data: SensorData):
