@@ -16,12 +16,12 @@
   - [Exercise 3](#exercise-3)
     - [Task 1](#task-1-1)
   - [Exercise 4](#exercise-4)
-  - [Exercise 5](#exercise-5)
-    - [Task 2](#task-2-1)
   - [Exercise 6](#exercise-6)
+    - [Task 2](#task-2-1)
   - [Exercise 7](#exercise-7)
   - [Exercise 8](#exercise-8)
   - [Exercise 9](#exercise-9)
+  - [Exercise 10](#exercise-10)
     - [Description](#description)
     - [Solution](#solution-1)
       - [Task 1](#task-1-2)
@@ -302,7 +302,7 @@ Found 1 items
 Wanna read it?
 Run: `hdfs dfs -cat /alice-in-wonderland.txt`
 
-## Exercise 5
+## Exercise 6
 
 ### Task 2
 
@@ -321,7 +321,7 @@ pip install hdfs
 
 Output:  Alice in wonderworld is printed
 
-## Exercise 6
+## Exercise 7
 
 Command:
 ```bash
@@ -347,7 +347,7 @@ Reading contents of file:
 [["the", 1515], ["and", 717], ["to", 706], ["a", 611], ["of", 493], ["she", 485], ["said", 416], ["it", 347], ["in", 346], ["was", 327]]
 ```
 
-## Exercise 7
+## Exercise 8
 
 Copy remaining files to the interactive pod using nano or vim.
 
@@ -393,7 +393,7 @@ Objavro.codenullavro.schema�{"name": "__Record1", "type": "record", "fields": 
                                                                                                                                                                                         to�    a�of�she�said�it�in�was�[;�N?��c�d����� 
 ```
 
-## Exercise 8
+## Exercise 9
 
 Run the script
 
@@ -416,7 +416,7 @@ Output:
 # Waaayyyy to long of a file to show it here.
 ```
 
-## Exercise 9
+## Exercise 10
 
 ### Description
 
@@ -457,7 +457,7 @@ Due to the use of Parquet, it is ideal to split the data into multiple files, wh
 Each sensor has an ID, which can either be an integer, UUID or some other unique identifier.
 
 In order to allow for other data storage in the hfds, the sensors will be stored in a folder system that represents the data source such as `<source>/<sensor_id>/<temporal_aspect>/<date>/<correlaction_id>`.  
-As this system monitors electricity lines, the source would be `powergrid/elecricity_lines/wattage_offset`.  
+As this system monitors electricity lines, the source would be `powergrid/electricity_lines/wattage_offset`.  
 Wich represents:
 
 - **powergrid**: The main source of the data, which is the power grid of the region.
@@ -466,7 +466,7 @@ Wich represents:
 
 The `sensor_id` allows to group data by sensor, hereafter by the temporal aspect, date and correlation ID, giving a clear overview of the data.
 
-Therefore sensors would have the full path of `powergrid/elecricity_lines/wattage_offset/<sensor_id>/<temporal_aspect>/<date>/<correlaction_id>.parquet`.
+Therefore sensors would have the full path of `powergrid/electricity_lines/wattage_offset/<sensor_id>/<temporal_aspect>/<date>/<correlaction_id>.parquet`.
 
 *Another folder structure could be used, based on the other data saved, such as if all data stored is about the power grid, the `powergrid` folder could be removed.*
 
@@ -549,3 +549,13 @@ The primse, is to install requirements, make a non-root user, copy the files and
 
 Automatic build and push of the image is done using GitHub Actions, which is set up in the [.github/workflows/exercise-02.yml](/.github/workflows/exercise-02.yml) file.  
 This builds upon [the0mikkel/ci](https://github.com/The0mikkel/ci), which is a collection of GitHub Actions for CI/CD.
+
+Data can be accessed using the `power-reader.py` file, which is a modification of the file-reader.py file from exercise 6.  
+Or, the data can be accessed through the web interface provided by the application. The deployment does not expose the application to the outside world, but it can be accessed through port-forwarding.
+
+```bash
+kubectl port-forward service/reader 5000:5000
+```
+
+*Currently, there is an error, where the following is 
+
