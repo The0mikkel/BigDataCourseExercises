@@ -20,6 +20,7 @@ class Client:
         files = self.get_files(hdfs_path)
         dfs = []
         for file in files:
+            print("Reading file: " + file)
             dfs.append(self.read(file))
             
         return pd.concat(dfs)
