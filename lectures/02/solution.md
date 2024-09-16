@@ -557,5 +557,44 @@ Or, the data can be accessed through the web interface provided by the applicati
 kubectl port-forward service/reader 5000:5000
 ```
 
-*Currently, there is an error, where the following is 
+*Currently, there is an error when reading from hdfs, which is being investigated.*  
+*This output is:*
 
+```txt
+Reading file: /powergrid/electricity_lines/wattage_offset/10/real_time/2024-09-15/033fe0f7-3024-4761-83ad-20314199c710.parquet     
+[2024-09-16 07:53:25 +0000] [7] [ERROR] Exception on /data [GET]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app.py", line 115, in get_data
+    df = client.read_all("/powergrid/electricity_lines/wattage_offset/")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/client.py", line 24, in read_all
+    dfs.append(self.read(file))
+               ^^^^^^^^^^^^^^^
+  File "/client.py", line 16, in read
+    return pd.read_parquet(reader)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pandas/io/parquet.py", line 667, in read_parquet
+    return impl.read(
+           ^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/pandas/io/parquet.py", line 402, in read
+    parquet_file = self.api.ParquetFile(path, **parquet_kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/fastparquet/api.py", line 135, in __init__
+    self._parse_header(fn, verify)
+  File "/usr/local/lib/python3.12/site-packages/fastparquet/api.py", line 207, in _parse_header
+    f.seek(0)
+  File "<frozen codecs>", line 642, in seek
+io.UnsupportedOperation: seek
+```
