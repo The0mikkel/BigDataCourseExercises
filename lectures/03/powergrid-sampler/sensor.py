@@ -53,7 +53,7 @@ class Sensor:
             self.callback(SensorData(self.id, self.correlation_id, reading, "MW", "real_time"))
             
             # Ensure sample rate, which is of how many samples per second (Hz)
-            time.sleep(1 / self.sample_rate)
+            time.sleep(1 / float(self.sample_rate))
 
     '''
     Stop listening for readings
