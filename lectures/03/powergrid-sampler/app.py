@@ -159,8 +159,8 @@ if not consumerNode:
     logger.info("Sensors started")
 
 # Consumer setup
+sensors = []
 if consumerNode:
-    sensors = []
     logger.info("Running in consumer mode")
     logger.info("Consuming in Kafka topic: " + kafka_topic + " with group id: " + group_id)
     
@@ -183,4 +183,12 @@ if __name__ == "__main__":
         logger.info("All threads finished - This indicates a problem")
 
         # Exit
+        exit(1)
+    else:
+        logger.info("Running in consumer mode")
+        logger.info("Consuming in Kafka topic: " + kafka_topic + " with group id: " + group_id)
+        
+        while True:
+            read_sensor()
+        
         exit(1)
