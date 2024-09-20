@@ -59,7 +59,9 @@ spec:
             timeoutSeconds: 10
           env:
             - name: SENSORS
-              value: "10,20,30,40,50,60,70,80,90,100"
+              value: "2"
+            - name: SAMPLE_RATE
+              value: "0.5"
           ports:
             - containerPort: 5000
               name: http

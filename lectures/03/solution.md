@@ -16,6 +16,7 @@ This document contains the solutions to the exercises in the lecture.
     - [Task 2 - Create topic](#task-2---create-topic)
     - [Task 3 - What will sensor id key do](#task-3---what-will-sensor-id-key-do)
     - [Task 4 - Recreate powergrid sampler to post to Kafka](#task-4---recreate-powergrid-sampler-to-post-to-kafka)
+  - [Exercise 5](#exercise-5)
 
 ## Exercise 1
 
@@ -356,3 +357,10 @@ The sampler is then deployed to the cluster.
 ```bash
 kubectl apply -f powergrid-sampler/k8s/
 ```
+
+The result, is that the sensor data is posted to the Kafka topic.
+
+![Redpanda ingestion view](solution-images/redpanda-ingestion-topic.png)
+
+## Exercise 5
+

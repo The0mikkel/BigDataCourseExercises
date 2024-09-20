@@ -20,8 +20,9 @@ def get_consumer(topic: str, group_id: str = None) -> KafkaConsumer:
 
 
 class Client:
-    def send_msg(self, value: SensorData, key: str, topic: str) -> None:
-        producer = get_producer()
+    def send_msg(self, value: SensorData, key: str, topic: str, producer: KafkaProducer = None) -> None:
+        if not producer:
+            producer = get_producer()
             
         if not topic:
             topic = DEFAULT_TOPIC
@@ -31,3 +32,10 @@ class Client:
             key=key.encode(DEFAULT_ENCODING),
             value=json.dumps(value.toObject()).encode(DEFAULT_ENCODING),
         )
+    
+    def recive_msg(callback, consumer: KafkaConsumer = None) -> None:
+        if not consumer:
+            consumer = get_consumer(DEFAULT_TOPIC)
+        
+        for msg in consumer:
+            callback(SensorData(**json.loads(msg.value.decode(DEFAULT_ENCODING))))
