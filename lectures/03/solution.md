@@ -19,6 +19,9 @@ This document contains the solutions to the exercises in the lecture.
   - [Exercise 5](#exercise-5)
   - [Exercise 6](#exercise-6)
   - [Exercise 7](#exercise-7)
+  - [Exercise 8](#exercise-8)
+  - [Exercise 9](#exercise-9)
+  - [Clean up](#clean-up)
 
 ## Exercise 1
 
@@ -694,3 +697,243 @@ How does HDFS 2 Sink Connector keep up with the six fictive data sources?
 Answer:  
 When running on a sample rate of 1HZ with 6 sensors, it can keep up, but increasing the sample rate, it takes some time, before the sink catches up.  
 But it can catch up, even at 10HZ.
+
+## Exercise 8
+
+Step 1:  
+Deploy the Flume manifest [flume.yaml](flume.yaml).
+
+This is done by:
+
+```bash
+kubectl apply -f flume.yaml
+```
+
+Step 2:  
+Open an interactive container with Python 3.12 or use the interactive pod provided.
+
+This is done by:
+
+```bash
+kubectl run python -it --image python:3.12 -- bash
+
+# Run in interactive container
+apt update && apt install nano -y
+
+# Copy text_input.py from hints
+
+pip install kafka-python-ng requests
+
+# Run the pythonfile
+python3 text_input.py
+```
+
+The following is the output from the python file
+
+```bash
+Enter your text (type 'exit' to quit):
+demo
+Data sent to Flume successfully.
+```
+
+In Redpanda we can see the message being delivered
+
+![Flume kafka queue](solution-images/redpanda-flume.png)
+
+## Exercise 9
+
+This exercise works with Sqoop.
+
+Step 1:  
+Deploy PostgresSQL database
+
+This cna be done using a helm chart:
+
+```bash
+helm install postgresql \
+  --version=12.1.5 \
+  --set auth.username=root \
+  --set auth.password=pwd1234 \
+  --set auth.database=employees \
+  --set primary.extendedConfiguration="password_encryption=md5" \
+  --repo https://charts.bitnami.com/bitnami \
+  postgresql
+```
+
+Step 2:  
+Get interactive shell with PostgresSql
+
+```bash
+kubectl exec -it postgresql-0  -- bash
+```
+
+Step 3:  
+Seed the database with employees
+
+First by logging into the database:
+
+```bash
+PGPASSWORD=pwd1234 psql -U root -d employees
+```
+
+Using the following SQL:
+
+```SQL
+CREATE TABLE employees (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  department VARCHAR(255) NOT NULL,
+  salary DECIMAL(10, 2) NOT NULL
+);
+
+INSERT INTO employees (name, department, salary) VALUES
+('John Doe', 'Engineering', 75000),
+('Jane Smith', 'Marketing', 65000),
+('Alice Johnson', 'HR', 60000),
+('Robert Brown', 'Finance', 80000);
+
+SELECT * FROM employees;
+```
+
+Which returns:
+
+```bash
+ id |     name      | department  |  salary  
+----+---------------+-------------+----------
+  1 | John Doe      | Engineering | 75000.00
+  2 | Jane Smith    | Marketing   | 65000.00
+  3 | Alice Johnson | HR          | 60000.00
+  4 | Robert Brown  | Finance     | 80000.00
+(4 rows)
+```
+
+Step 4:  
+Deploy the Sqoop manifest [sqoop.yaml](sqoop.yaml).
+
+This is done as followed:  
+
+```bash
+kubectl apply -f sqoop.yaml
+```
+
+Then we can interact with sqoop container using:
+
+```bash
+kubectl exec deployment.apps/sqoop -it -- bash
+```
+
+Step 5:  
+Verify that Sqoop can connect to the PostgresSQL database
+
+This is done with the following:  
+
+```bash
+sqoop list-databases \
+  --connect "jdbc:postgresql://postgresql:5432/employees" \
+  --username root \
+  --password pwd1234 
+```
+
+Which returns:
+
+```txt
+Warning: /usr/local/sqoop/../hbase does not exist! HBase imports will fail.
+Please set $HBASE_HOME to the root of your HBase installation.
+Warning: /usr/local/sqoop/../hcatalog does not exist! HCatalog jobs will fail.
+Please set $HCAT_HOME to the root of your HCatalog installation.
+Warning: /usr/local/sqoop/../accumulo does not exist! Accumulo imports will fail.
+Please set $ACCUMULO_HOME to the root of your Accumulo installation.
+Warning: /usr/local/sqoop/../zookeeper does not exist! Accumulo imports will fail.
+Please set $ZOOKEEPER_HOME to the root of your Zookeeper installation.
+2024-09-20 21:31:45,058 INFO sqoop.Sqoop: Running Sqoop version: 1.4.7
+2024-09-20 21:31:45,081 WARN tool.BaseSqoopTool: Setting your password on the command-line is insecure. Consider using -P instead.
+2024-09-20 21:31:45,153 INFO manager.SqlManager: Using default fetchSize of 1000
+postgres
+template1
+template0
+employees
+```
+
+Step 6:  
+Ingest the database into HDFS
+
+This is done by following:
+
+```bash
+sqoop import \
+  --connect "jdbc:postgresql://postgresql:5432/employees" \
+  --username root \
+  --password pwd1234 \
+  --table employees \
+  --target-dir /employees \
+  --direct \
+  --m 1
+```
+
+Which returns:
+
+```txt
+Warning: /usr/local/sqoop/../hbase does not exist! HBase imports will fail.
+Please set $HBASE_HOME to the root of your HBase installation.
+Warning: /usr/local/sqoop/../hcatalog does not exist! HCatalog jobs will fail.
+Please set $HCAT_HOME to the root of your HCatalog installation.
+Warning: /usr/local/sqoop/../accumulo does not exist! Accumulo imports will fail.
+Please set $ACCUMULO_HOME to the root of your Accumulo installation.
+Warning: /usr/local/sqoop/../zookeeper does not exist! Accumulo imports will fail.
+Please set $ZOOKEEPER_HOME to the root of your Zookeeper installation.
+2024-09-20 21:34:07,193 INFO sqoop.Sqoop: Running Sqoop version: 1.4.7
+2024-09-20 21:34:07,218 WARN tool.BaseSqoopTool: Setting your password on the command-line is insecure. Consider using -P instead.
+2024-09-20 21:34:07,291 INFO manager.SqlManager: Using default fetchSize of 1000
+2024-09-20 21:34:07,292 INFO tool.CodeGenTool: Beginning code generation
+2024-09-20 21:34:07,429 INFO manager.SqlManager: Executing SQL statement: SELECT t.* FROM "employees" AS t LIMIT 1
+2024-09-20 21:34:07,456 INFO orm.CompilationManager: HADOOP_MAPRED_HOME is /usr/local/hadoop
+Note: /tmp/sqoop-root/compile/ad2c959239daae0f20eaae07ac30bf6a/employees.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+2024-09-20 21:34:09,024 INFO orm.CompilationManager: Writing jar file: /tmp/sqoop-root/compile/ad2c959239daae0f20eaae07ac30bf6a/employees.jar
+2024-09-20 21:34:09,036 INFO manager.DirectPostgresqlManager: Beginning psql fast path import
+2024-09-20 21:34:09,039 INFO manager.SqlManager: Executing SQL statement: SELECT t.* FROM "employees" AS t LIMIT 1
+2024-09-20 21:34:09,046 INFO manager.DirectPostgresqlManager: Copy command is COPY (SELECT "id", "name", "department", "salary" FROM "employees" WHERE 1=1) TO STDOUT WITH DELIMITER E'\54' CSV ;
+2024-09-20 21:34:09,050 INFO manager.DirectPostgresqlManager: Performing import of table employees from database employees
+2024-09-20 21:34:10,059 INFO manager.DirectPostgresqlManager: Transfer loop complete.
+2024-09-20 21:34:10,060 INFO manager.DirectPostgresqlManager: Transferred 124 bytes in 0.1273 seconds (973.6965 bytes/sec)
+```
+
+We can now check that the `/employees` directory in HDFS is created, with the data ingested
+
+```bash
+kubectl exec hdfs-cli -it -- hdfs dfs -ls /employees
+```
+
+Which returns:
+
+```txt
+Found 1 items
+-rw-r--r--   1 root supergroup        124 2024-09-20 21:34 /employees/part-m-00000
+```
+
+And can be printed by:
+
+```bash
+kubectl exec hdfs-cli -it -- hdfs dfs -cat /employees/part-m-00000
+```
+
+Which returns:
+
+```txt
+Defaulted container "hadoop" out of: hadoop, init-config (init)
+1,John Doe,Engineering,75000.00
+2,Jane Smith,Marketing,65000.00
+3,Alice Johnson,HR,60000.00
+4,Robert Brown,Finance,80000.00
+```
+
+## Clean up
+
+```bash
+kubectl delete -f powergrid-sampler/k8s
+kubectl delete -f ../../services/hdfs/
+kubectl delete -f .
+kubectl delete pod/python
+helm delete postgresql
+helm delete kafka
+```
