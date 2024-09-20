@@ -65,7 +65,7 @@ def start_sensor(sensorId):
 def read_sensor():
     # Process data
     logger.debug(f"Reading sensor data from Kafka topic {kafka_topic}")
-    client.recive_msg(process_data, get_consumer(kafka_topic, group_id=group_id))
+    client.receive_msg(process_data, get_consumer(kafka_topic, group_id=group_id))
 
 def check_sensors_health():
     if consumerNode:

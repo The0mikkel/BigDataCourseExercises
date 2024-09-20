@@ -33,7 +33,7 @@ class Client:
             value=json.dumps(value.toObject()).encode(DEFAULT_ENCODING),
         )
     
-    def recive_msg(callback, consumer: KafkaConsumer = None) -> None:
+    def receive_msg(self, callback, consumer: KafkaConsumer = None) -> None:
         if not consumer:
             consumer = get_consumer(DEFAULT_TOPIC)
         
