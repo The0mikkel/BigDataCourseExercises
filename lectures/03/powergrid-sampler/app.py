@@ -105,6 +105,10 @@ def get_sensors():
 
 @app.route("/_status/healthz")
 def get_health():
+    if consumerNode:
+        return jsonify({"status": "ok"}, 200)
+    
+    
     # Check sensor healths, and create a json response for each sensor, and the correlation id of this instance
     check_sensors_health()
 
@@ -158,6 +162,7 @@ if not consumerNode:
 if consumerNode:
     sensors = []
     logger.info("Running in consumer mode")
+    logger.info("Consuming in Kafka topic: " + kafka_topic + " with group id: " + group_id)
     
     while True:
         read_sensor()
