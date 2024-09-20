@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sensor-odd
+  name: reader-1
   labels:
     lecture: "03"
     exercise: powergrid-sampler
@@ -10,7 +10,7 @@ metadata:
     app: consumer
     group: "1"
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       lecture: "03"
@@ -58,7 +58,7 @@ spec:
             initialDelaySeconds: 30
             timeoutSeconds: 10
           env:
-            - name: consumerNode
+            - name: CONSUMER_NODE
               value: "True"
             - name: GROUP_ID
               value: "1"

@@ -17,6 +17,8 @@ This document contains the solutions to the exercises in the lecture.
     - [Task 3 - What will sensor id key do](#task-3---what-will-sensor-id-key-do)
     - [Task 4 - Recreate powergrid sampler to post to Kafka](#task-4---recreate-powergrid-sampler-to-post-to-kafka)
   - [Exercise 5](#exercise-5)
+  - [Exercise 6](#exercise-6)
+  - [Exercise 7](#exercise-7)
 
 ## Exercise 1
 
@@ -364,3 +366,331 @@ The result, is that the sensor data is posted to the Kafka topic.
 
 ## Exercise 5
 
+The source code for the powergrid sampler can be found in the [powergrid-sampler](./powergrid-sampler) directory, which has been updated to receive the Kafka topic as an environment variable.
+
+Primary update is the following, which handles the Kafka producer:
+
+```python
+def start_sensor(sensorId):
+    logger.debug(f"Starting sensor {sensorId}")
+    logger.debug(f"Correlation ID: {correlationId}")
+    logger.debug(f"Sample rate: {sampleRate}")
+    
+    sensor = Sensor(sensorId, correlationId, sampleRate, save_data)
+    sensor.start_listening()
+
+def read_sensor():
+    # Process data
+    logger.debug(f"Reading sensor data from Kafka topic {kafka_topic}")
+    client.receive_msg(process_data, get_consumer(kafka_topic, group_id=group_id))
+```
+
+To get the output, we can use the following command:
+
+```bash
+# Reader 1
+kubectl logs deployments/reader-1
+
+# Reader 2
+kubectl logs deployments/reader-2
+```
+
+Questions:  
+*Start another consumer but with a different group id in your interactive container. What happens when you run the program?*
+
+Answer:  
+When starting another consumer in a different group id, the consumer will get the same messages as the first consumer, as both groups get all messages
+
+Questions:
+*Two consumers with the same group id are started. What happens when you runs it?*
+
+Answer:  
+When starting two consumers in the same group, they will not receive the same messages, but listen on different partitions, and thus get different messages.
+
+Questions:
+*Open [localhost:8080/topics/INGESTION](http://127.0.0.1:8080/topics/INGESTION#consumers). You should now see a table similar to the one below. What does the Lag column mean?*
+
+Answer:
+The two groups are seen in the Redpanda web interface, and the lag is the difference between the last message and the current message.
+
+![Redpanda consumer view](solution-images/redpanda-ingestion-consumers.png)
+
+Questions and answers:
+
+- How can we get two consumers to receive identical records?
+  - To receive the same records, consumers needs to be in two different groups
+- How can we get two consumers to receive unique records?
+  - To receive unique records, consumers needs to be in the same group
+- What defines the maximum number of active parallel consumers within one consumer group?
+  - The number of partitions in the topic defines the maximum number of active parallel consumers within one consumer group. If more consumers are started, they will be idle.
+
+## Exercise 6
+
+This exercise is about creating ksqlDB, with 6 seperate streams based on the sensor id.
+
+Step 1:  
+Interactive shell
+
+```bash
+kubectl exec --stdin --tty deployment/kafka-ksqldb-cli -- ksql http://kafka-ksqldb-server:8088
+
+                  ===========================================
+                  =       _              _ ____  ____       =
+                  =      | | _____  __ _| |  _ \| __ )      =
+                  =      | |/ / __|/ _` | | | | |  _ \      =
+                  =      |   <\__ \ (_| | | |_| | |_) |     =
+                  =      |_|\_\___/\__, |_|____/|____/      =
+                  =                   |_|                   =
+                  =        The Database purpose-built       =
+                  =        for stream processing apps       =
+                  ===========================================
+
+Copyright 2017-2022 Confluent Inc.
+
+CLI v7.3.1, Server v7.3.1 located at http://kafka-ksqldb-server:8088
+Server Status: RUNNING
+
+Having trouble? Type 'help' (case-insensitive) for a rundown of how things work!
+
+ksql> 
+```
+
+Step 2:  
+Create a stream over the existing `INGESTION` topic with the following name `STREAM_INGESTION`
+
+SQL for ingestion:
+
+```sql
+CREATE STREAM STREAM_INGESTION (
+  sensor_id STRING,
+  correlation_id STRING,
+  modality DOUBLE,
+  unit STRING,
+  schema_version INTEGER,
+  created_at DOUBLE 
+) WITH (KAFKA_TOPIC = 'INGESTION', VALUE_FORMAT = 'JSON');
+```
+
+Running the SQL:
+
+```bash
+ksql> CREATE STREAM STREAM_INGESTION (
+>  sensor_id STRING,
+>  correlation_id STRING,
+>  modality DOUBLE,
+>  unit STRING,
+>  schema_version INTEGER,
+>  created_at DOUBLE
+>) WITH (KAFKA_TOPIC = 'INGESTION', VALUE_FORMAT = 'JSON');
+
+ Message
+----------------
+ Stream created
+----------------
+```
+
+Step 3:  
+Create dedicated channels for each sesnor.  
+There are 6 sensors, so there will be created one for each sensor.
+
+The following SQL will be used, with `sensor_id` replaced with the id.
+
+```sql
+CREATE STREAM SENSOR_ID_<sensor_id> AS
+SELECT
+    *
+FROM
+    STREAM_INGESTION
+WHERE
+    sensor_id = '<sensor_id>';
+```
+
+CREATE STREAM SENSOR_ID_1 AS SELECT * FROM STREAM_INGESTION WHERE sensor_id = '1';
+
+The following is it executed:
+
+```bash
+ksql> CREATE STREAM SENSOR_ID_1 AS SELECT * FROM STREAM_INGESTION WHERE sensor_id = '1';
+
+ Message
+-------------------------------------------
+ Created query with ID CSAS_SENSOR_ID_1_31
+-------------------------------------------
+
+ksql> CREATE STREAM SENSOR_ID_2 AS SELECT * FROM STREAM_INGESTION WHERE sensor_id = '2';
+
+ Message
+-------------------------------------------
+ Created query with ID CSAS_SENSOR_ID_3_33
+-------------------------------------------
+
+ksql> CREATE STREAM SENSOR_ID_3 AS SELECT * FROM STREAM_INGESTION WHERE sensor_id = '3';
+
+ Message
+-------------------------------------------
+ Created query with ID CSAS_SENSOR_ID_3_35
+-------------------------------------------
+
+ksql> CREATE STREAM SENSOR_ID_4 AS SELECT * FROM STREAM_INGESTION WHERE sensor_id = '4';
+
+ Message
+-------------------------------------------
+ Created query with ID CSAS_SENSOR_ID_4_37
+-------------------------------------------
+
+ksql> CREATE STREAM SENSOR_ID_5 AS SELECT * FROM STREAM_INGESTION WHERE sensor_id = '5';
+
+ Message
+-------------------------------------------
+ Created query with ID CSAS_SENSOR_ID_5_39
+-------------------------------------------
+
+ksql> CREATE STREAM SENSOR_ID_6 AS SELECT * FROM STREAM_INGESTION WHERE sensor_id = '6';
+
+ Message
+-------------------------------------------
+ Created query with ID CSAS_SENSOR_ID_6_41
+-------------------------------------------
+```
+
+Step 4:  
+Validate the strems using CLI.
+
+The following SQL can be used:
+
+```sql
+SELECT * FROM SENSOR_ID_<sensor_id> EMIT CHANGES;
+```
+
+This executed is: 
+
+```bash
+ksql> SELECT * FROM SENSOR_ID_1 EMIT CHANGES;
++---------------------------------------+---------------------------------------+---------------------------------------+---------------------------------------+---------------------------------------+---------------------------------------+       
+|SENSOR_ID                              |CORRELATION_ID                         |MODALITY                               |UNIT                                   |SCHEMA_VERSION                         |CREATED_AT                             |       
++---------------------------------------+---------------------------------------+---------------------------------------+---------------------------------------+---------------------------------------+---------------------------------------+       
+|1                                      |703a81f1-3ef1-4965-bdc2-2d200b7fb4e7   |-189.2306757625213                     |MW                                     |1                                      |1726861986.969642                      |       
+|1                                      |703a81f1-3ef1-4965-bdc2-2d200b7fb4e7   |-312.5373231482345                     |MW                                     |1                                      |1726861988.0925968                     |       
+|1                                      |703a81f1-3ef1-4965-bdc2-2d200b7fb4e7   |507.15718794015265                     |MW                                     |1                                      |1726861989.215825                      |
+```
+
+## Exercise 7
+
+Step 1:  
+Ensure HDFS is running
+
+This can be done by running the service in [serviecs/hdfs](../../services/hdfs/):
+
+```bash
+kubectl apply -f ../../services/hdfs/
+```
+
+Step 2:  
+Setup HDFS 2 sink connector.
+
+This is done using API, since UI does not have all features:
+
+```bash
+kubectl port-forward svc/kafka-connect 8083 & 
+curl -X POST \
+http://127.0.0.1:8083/connectors \
+-H 'Content-Type: application/json' \
+-d '{
+    "name": "hdfs-sink",
+    "config": {
+        "connector.class": "io.confluent.connect.hdfs.HdfsSinkConnector",
+        "tasks.max": "3",
+        "topics": "INGESTION",
+        "hdfs.url": "hdfs://namenode:9000",
+        "flush.size": "3",
+        "format.class": "io.confluent.connect.hdfs.json.JsonFormat",
+        "key.converter.schemas.enable":"false",
+        "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+        "key.converter.schema.registry.url": "http://kafka-schema-registry:8081", 
+        "value.converter.schemas.enable":"false",
+        "value.converter.schema.registry.url": "http://kafka-schema-registry:8081", 
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter"
+    }
+}'
+```
+
+Result:
+
+```json
+{
+   "name":"hdfs-sink",
+   "config":{
+      "connector.class":"io.confluent.connect.hdfs.HdfsSinkConnector",
+      "tasks.max":"3",
+      "topics":"INGESTION",
+      "hdfs.url":"hdfs://namenode:9000",
+      "flush.size":"3",
+      "format.class":"io.confluent.connect.hdfs.json.JsonFormat",
+      "key.converter.schemas.enable":"false",
+      "key.converter":"org.apache.kafka.connect.storage.StringConverter",
+      "key.converter.schema.registry.url":"http://kafka-schema-registry:8081",
+      "value.converter.schemas.enable":"false",
+      "value.converter.schema.registry.url":"http://kafka-schema-registry:8081",
+      "value.converter":"org.apache.kafka.connect.json.JsonConverter",
+      "name":"hdfs-sink"
+   },
+   "tasks":[
+      
+   ],
+   "type":"sink"
+}
+```
+
+Step 3:  
+Validate the HDFS 2 Sink Connector is working as expected.
+
+For this, we can run the following commands:  
+
+```bash
+kubectl exec hdfs-cli -it -- hdfs dfs -ls /topics/
+```
+
+Which gives:
+
+```bash
+Defaulted container "hadoop" out of: hadoop, init-config (init)
+Found 2 items
+drwxr-xr-x   - root supergroup          0 2024-09-20 20:25 /topics/+tmp
+drwxr-xr-x   - root supergroup          0 2024-09-20 20:27 /topics/INGESTION
+```
+
+and
+
+```bash
+kubectl exec hdfs-cli -it -- hdfs dfs -ls 
+/topics/INGESTION
+Defaulted container "hadoop" out of: hadoop, init-config (init)
+Found 6 items
+drwxr-xr-x   - root supergroup          0 2024-09-20 20:44 /topics/INGESTION/partition=0
+drwxr-xr-x   - root supergroup          0 2024-09-20 20:44 /topics/INGESTION/partition=1
+drwxr-xr-x   - root supergroup          0 2024-09-20 20:44 /topics/INGESTION/partition=2
+drwxr-xr-x   - root supergroup          0 2024-09-20 20:44 /topics/INGESTION/partition=3
+drwxr-xr-x   - root supergroup          0 2024-09-20 20:44 /topics/INGESTION/partition=4
+drwxr-xr-x   - root supergroup          0 2024-09-20 20:44 /topics/INGESTION/partition=5
+```
+
+We can also check logs by doing:
+
+```bash
+kubectl exec hdfs-cli -it -- hdfs dfs -ls /logs/
+```
+
+Which gives:
+
+```bash
+Defaulted container "hadoop" out of: hadoop, init-config (init)
+Found 1 items
+drwxr-xr-x   - root supergroup          0 2024-09-20 20:27 /logs/INGESTION
+```
+
+Question:  
+How does HDFS 2 Sink Connector keep up with the six fictive data sources?
+
+Answer:  
+When running on a sample rate of 1HZ with 6 sensors, it can keep up, but increasing the sample rate, it takes some time, before the sink catches up.  
+But it can catch up, even at 10HZ.
