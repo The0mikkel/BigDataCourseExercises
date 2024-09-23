@@ -1,6 +1,10 @@
 # Big Data and Data Science Technology, E24 course exercises
 
-This repository contains the exercises related to the course [Big Data and Data Science Technology, E24](https://odin.sdu.dk/sitecore/index.php?a=fagbesk&id=138236&listid=18888&lang=en) at University of Southern Denmark.
+This repository is a fork of the exercises GitHub repository, that contains the exercises related to the course [Big Data and Data Science Technology, E24](https://odin.sdu.dk/sitecore/index.php?a=fagbesk&id=138236&listid=18888&lang=en) at University of Southern Denmark.
+
+In the `/lectures` directory, you will find each lecture, and in each lecture directory you will find a `solution.md`, which contains my answers to the exercises.
+
+The following is the original README for the repository.
 
 ## Instructors
 
@@ -60,7 +64,8 @@ The root of this repository will be related to the content of the current semest
 ├── lectures
 │   └── {01,02,03,04,05,07}
 │       ├── ...
-│       └── exercises.md
+│       └── README.md
+│       └── solution.md
 └── services
     ├── README.md
     ├── hdfs
