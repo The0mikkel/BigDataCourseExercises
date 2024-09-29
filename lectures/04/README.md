@@ -37,22 +37,60 @@ create a Spark job that both can run on your localhost and in your Spark environ
 
 **Task**: Inspect the [pi-estimation.py](./pi-estimation.py) file.
 
-**Task**: Try to visualize the [DAG](https://en.wikipedia.org/wiki/Directed_acyclic_graph) this program will create.
+**Task**: Run the [pi-estimation.py](./pi-estimation.py) file locally using Python.
 
-**Help**:
+**Help**: Running Spark jobs
 
-- Take a look [here](https://stackoverflow.com/a/30685279/9698208) to better understand how the DAG is created for the
-  Spark program.
-- You are able to get other examples of Spark programs [here](https://spark.apache.org/examples.html).
+- Using Python: ``python <SCRIPT.py> <NUMBER_OF_PARTITIONS>``
+- Using `spark-submit`: ``spark-submit <SCRIPT.py> <NUMBER_OF_PARTITIONS>``
+    - Have a look at the `spark-submit` documentation
+      for [submitting-applications](https://spark.apache.org/docs/latest/submitting-applications.html).
 
-**Task**: Run the [pi-estimation.py](./pi-estimation.py) file locally using Python 3.12.
+**Question**: How will the number of partitions argument affect the result?
 
-- How will the number of partitions argument affect the result?
+<details>
+  <summary><strong>Hint</strong>: Run Spark locally</summary>
+
+Change this line of code in [pi-estimation.py](./pi-estimation.py) to point to `SPARK_ENV.LOCAL`
+
+  ```text
+  spark = get_spark_context(app_name="Pi estimation", config=SPARK_ENV.LOCAL)
+  ```
+
+</details>
 
 **Task**: Update the [pi-estimation.py](./pi-estimation.py) file to be executed on the inside your Kubernetes cluster.
 
 - Does the number of partitions affect the runtime?
 - How does the runtime compare to running the program locally?
+
+<details>
+  <summary><strong>Hint</strong>: Run Spark within the Kubernetes cluster</summary>
+
+Change this line of code in [pi-estimation.py](./pi-estimation.py) to point to `SPARK_ENV.K8S`
+
+  ```text
+  spark = get_spark_context(app_name="Pi estimation", config=SPARK_ENV.K8S)
+  ```
+
+</details>
+
+**Help**: Key differences between `python <SCRIPT.py>` and `spark-submit <SCRIPT.py>`
+
+| **Aspect**              | `python <SCRIPT.py>`                                     | `spark-submit <SCRIPT.py>`                                               |
+|-------------------------|----------------------------------------------------------|--------------------------------------------------------------------------|
+| **Execution Mode**      | Local execution as a regular Python script               | Submit as a Spark job to a cluster                                       |
+| **Spark Context**       | Must be created within the script                        | Created and managed by `spark-submit`                                    |
+| **Cluster Integration** | Limited to local mode or simple clusters                 | Supports full integration with cluster managers (YARN, Kubernetes, etc.) |
+| **Resource Management** | Limited to local machine resources                       | Managed by the cluster, scalable                                         |
+| **Use Case**            | Development and testing locally                          | Production and large-scale distributed jobs                              |
+| **Ease of Setup**       | Very easy; no additional setup required                  | Requires setup of cluster configuration and environment                  |
+| **Dependencies**        | Must be managed manually in the script                   | Can include dependencies via `--packages` or `--jars` options            |
+| **Error Handling**      | Errors shown in the console directly                     | Errors logged in cluster logs, more difficult to debug remotely          |
+| **Logging**             | Logs output to console                                   | Logs managed by cluster manager, accessible via web UI or files          |
+| **Deployment Modes**    | Supports only local mode                                 | Supports local, client, and cluster deployment modes                     |
+| **Job Configuration**   | Configuration is hard-coded or via environment variables | Can pass configurations via command-line options                         |
+| **Output and Results**  | Printed to console                                       | Can be redirected to files, databases, or external storage               |
 
 ### Exercise 3 - Analyzing files using Spark jobs
 
@@ -67,7 +105,19 @@ cluster. If not upload the file to HDFS.
 **Task**: Inspect the [word-count.py](./word-count.py). The program counts the occurrences of all unique "words" in the
 input file.
 
-- Try to run the program locally and in the cluster pointing towards different input files.
+**Task**: Try to visualize the [DAG](https://en.wikipedia.org/wiki/Directed_acyclic_graph) this program will create.
+
+**Help**:
+
+- Take a look [here](https://stackoverflow.com/a/30685279/9698208) to better understand how the DAG is created for the
+  Spark program.
+- You are able to get other examples of Spark programs [here](https://spark.apache.org/examples.html).
+
+**Task**: Run the program locally and in the cluster pointing towards different input files.
+
+```bash
+spark-submit word-count.py
+```
 
 **Notice**:You can read about the word count program from Apache Spark [here](https://spark.apache.org/examples.html)
 and [here](https://github.com/apache/spark/blob/c1b12bd56429b98177e5405900a08dedc497e12d/examples/src/main/python/wordcount.py).
@@ -85,7 +135,12 @@ In this exercise you will run a Spark job that will read all the JSON files and 
 **Task**: Ensure you have records stored in HDFS on the proper location. If not upload the records to HDFS
 using [exercise 4 from lecture 03](./../03/README.md#exercise-4---produce-messages-to-kafka-using-python)
 and [exercise 7 from lecture 3](../03/README.md#exercise-7---kafka-connect-and-hdfs)
+
 **Task**: Run the Spark application on the cluster. What is the `payload.modality` average value for each station?
+
+```bash
+spark-submit avg-modalities.py
+```
 
 ### Exercise 5 - Average sample values from Avro files stored in HDFS (optional)
 
@@ -99,7 +154,13 @@ In this exercise you will run a Spark job that will read all the Avro files and 
 
 **Task**: Ensure you have records stored in HDFS on the proper location. If not upload the records to HDFS
 using [exercise 10 from lecture 02](../02/README.md#exercise-10---create-six-fictive-data-sources)
-**Task**: Run the Spark application on the cluster. This should produce the same results as in [Exercise 4](#exercise-4---average-sample-values-from-json-files-stored-in-hdfs)
+
+**Task**: Run the Spark application on the cluster. This should produce the same results as
+in [Exercise 4](#exercise-4---average-sample-values-from-json-files-stored-in-hdfs)
+
+```bash
+spark-submit --packages org.apache.spark:spark-avro_2.12:3.5.2 avg-modalities-avro.py
+```
 
 ### Exercise 6 - Running Spark Streaming Jobs - Kafka
 
@@ -116,7 +177,7 @@ kafka. You can enable an interactive Spark streaming prompt using `pyspark` or s
 using `spark-submit` as demonstrated below:
 
 ```bash
-pyspark --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.2
+pyspark --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.2 
 ```
 
 ```bash
