@@ -350,8 +350,8 @@ following resources:
 - PersistentVolumeClaim: `mongodb-pvc`
 - Services
     - `mongodb`
-    - type: NodePort
-    - port: 27017 <-> 27017
+		- type: NodePort
+		- port: 27017 <-> 27017
     - `mongo-express`
         - type: NodePort
         - port: 8081 <-> 8081
